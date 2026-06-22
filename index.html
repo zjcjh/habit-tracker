@@ -1,0 +1,905 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>习惯打卡 · 日有所进</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root {
+  --bg:#fdf6ec;
+  --card:#fffbf5;
+  --accent:#c97d50;
+  --accent2:#8fad88;
+  --text:#4a3728;
+  --text2:#8b7355;
+  --shadow:0 2px 12px rgba(74,55,40,.08);
+  --radius:14px;
+  --hero-bg:url('img/fb5153169afe4e1d9a85c89cf64f4935.png');
+  --pavilion:url('img/b735750d64654830a53f6e7ccb570c62.png');
+  --cherry-l:url('img/3199e511bca14be1a1c55188fb3f5839.png');
+  --cherry-r:url('img/58a902c6fac840fe82d823d01776c36a.png');
+  --mist-mtn:url('img/8ae0e765f82143e487e60142a67c19c1.png');
+  --forest:url('img/4eb4d17181714e45ba5f8e11234d64af.png');
+  --mascot:url('img/1ddb6e50860d44129ab497d1c4d2438b.png');
+}
+body {
+  font-family:'STSong','Noto Serif SC','SimSun','Songti SC',Georgia,serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  line-height:1.6;
+}
+body::before {
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse at 20% 20%,rgba(201,125,80,.04) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 60%,rgba(143,173,136,.04) 0%,transparent 60%);
+  pointer-events:none;z-index:0;
+}
+
+.hero {
+  position:relative;z-index:1;
+  background:var(--hero-bg) center/cover no-repeat;
+  min-height:320px;display:flex;align-items:center;justify-content:center;
+  border-radius:0 0 40px 40px;
+  overflow:hidden;
+}
+.hero::after {
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(253,246,236,.55) 0%,rgba(253,246,236,.92) 100%);
+}
+.hero-inner {
+  position:relative;z-index:2;text-align:center;padding:48px 24px 36px;
+  max-width:700px;
+}
+.hero-date {
+  font-size:1rem;color:var(--text2);letter-spacing:3px;margin-bottom:8px;
+}
+.hero-title {
+  font-size:clamp(1.6rem,4vw,2.4rem);color:var(--accent);
+  font-weight:700;letter-spacing:4px;margin-bottom:6px;
+}
+.hero-quote {
+  font-size:1.05rem;color:var(--text);font-style:italic;
+  background:rgba(255,251,245,.7);display:inline-block;
+  padding:6px 18px;border-radius:20px;margin-top:6px;
+  border:1px solid rgba(201,125,80,.15);
+  max-width:100%;
+}
+.weather-card {
+  display:inline-flex;align-items:center;gap:8px;
+  margin-top:14px;padding:8px 16px;
+  background:rgba(255,251,245,.8);border-radius:20px;
+  font-size:.9rem;color:var(--text2);
+  border:1px solid rgba(201,125,80,.15);
+  backdrop-filter:blur(4px);
+}
+.weather-card .temp{font-size:1.4rem;font-weight:700;color:var(--accent)}
+.weather-card .wicon{font-size:1.6rem}
+
+.main-container {
+  position:relative;z-index:1;
+  max-width:1100px;margin:0 auto;padding:24px 20px 40px;
+  display:grid;grid-template-columns:1fr 340px;gap:24px;
+}
+@media(max-width:800px){.main-container{grid-template-columns:1fr}}
+
+.card {
+  background:var(--card);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:24px;
+  position:relative;overflow:hidden;
+}
+.card-header {
+  display:flex;align-items:center;gap:10px;margin-bottom:16px;
+  padding-bottom:12px;border-bottom:1px solid rgba(139,115,85,.12);
+}
+.card-header h3{font-size:1.1rem;color:var(--accent);letter-spacing:2px}
+.card-header .icon{font-size:1.4rem}
+
+.habit-core {
+  position:relative;
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.habit-core::before {
+  content:'';position:absolute;top:0;left:0;width:80px;height:100%;
+  background:var(--cherry-l) left top/contain no-repeat;
+  opacity:.35;pointer-events:none;
+}
+.habit-core::after {
+  content:'';position:absolute;top:0;right:0;width:80px;height:100%;
+  background:var(--cherry-r) right top/contain no-repeat;
+  opacity:.35;pointer-events:none;
+}
+.habit-inner{position:relative;z-index:1;padding:24px}
+
+.progress-wrap {
+  display:flex;align-items:center;gap:14px;margin-bottom:20px;
+}
+.progress-count {
+  font-size:2rem;font-weight:700;color:var(--accent);
+  white-space:nowrap;
+}
+.progress-count span{font-size:1rem;color:var(--text2);font-weight:400}
+.progress-bar-outer {
+  flex:1;height:10px;background:#ede3d3;border-radius:10px;
+  overflow:hidden;
+}
+.progress-bar-inner {
+  height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));
+  border-radius:10px;transition:width .5s ease;
+}
+
+.habit-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.habit-item {
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;background:#fdf8f0;
+  border-radius:10px;cursor:pointer;
+  transition:all .2s;border:2px solid transparent;
+  user-select:none;
+}
+.habit-item:hover{background:#f9f0e4;border-color:rgba(201,125,80,.2)}
+.habit-item.done{background:#edf5e9;border-color:rgba(143,173,136,.3)}
+.habit-check {
+  width:26px;height:26px;border-radius:50%;
+  border:2px solid #d4c5b0;display:flex;align-items:center;justify-content:center;
+  font-size:14px;color:transparent;transition:all .25s;
+  flex-shrink:0;
+}
+.habit-item.done .habit-check{background:var(--accent2);border-color:var(--accent2);color:#fff}
+.habit-name{font-size:1rem;letter-spacing:1px}
+.habit-item.done .habit-name{color:var(--accent2);text-decoration:line-through}
+
+.habit-locked-hint {
+  text-align:center;font-size:.8rem;color:var(--text2);
+  margin-top:12px;font-style:italic;
+}
+
+.sidebar{display:flex;flex-direction:column;gap:20px}
+
+.journal-card textarea {
+  width:100%;height:140px;resize:vertical;
+  background:repeating-linear-gradient(
+    transparent,transparent 27px,#e8dcc8 27px,#e8dcc8 28px
+  );
+  border:1px solid #e8dcc8;border-radius:6px;
+  padding:8px 12px;font-family:inherit;
+  font-size:.95rem;line-height:28px;
+  color:var(--text);outline:none;
+}
+.journal-card textarea:focus{border-color:var(--accent)}
+.journal-card textarea::placeholder{color:#c5b699}
+.journal-saved{font-size:.75rem;color:var(--accent2);text-align:right;margin-top:4px;opacity:0;transition:opacity .4s}
+.journal-saved.show{opacity:1}
+
+.music-modes{display:flex;gap:8px;margin-bottom:12px}
+.music-mode-btn {
+  flex:1;padding:7px;border:1px solid #d4c5b0;border-radius:8px;
+  background:#fdf8f0;color:var(--text2);cursor:pointer;
+  font-size:.8rem;font-family:inherit;transition:all .2s;
+}
+.music-mode-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.music-controls {
+  display:flex;align-items:center;gap:10px;
+}
+.btn-play {
+  width:40px;height:40px;border-radius:50%;
+  border:2px solid var(--accent);background:#fff;
+  cursor:pointer;font-size:1.2rem;color:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;flex-shrink:0;
+}
+.btn-play:hover{background:var(--accent);color:#fff}
+.vol-slider {
+  flex:1;accent-color:var(--accent);
+  height:4px;cursor:pointer;
+}
+.custom-upload-label {
+  display:none;font-size:.75rem;color:var(--accent);cursor:pointer;
+  text-decoration:underline;margin-top:6px;
+}
+.custom-upload-label.show{display:block}
+.custom-upload-label input{display:none}
+.music-file-name{font-size:.7rem;color:var(--text2);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.reminder-row {
+  display:flex;align-items:center;gap:10px;
+}
+.reminder-row input[type="time"] {
+  padding:6px 10px;border:1px solid #d4c5b0;border-radius:8px;
+  font-family:inherit;font-size:.9rem;color:var(--text);
+  background:#fdf8f0;
+}
+.reminder-status{font-size:.8rem;color:var(--text2);margin-top:8px}
+
+.calendar-section{margin-top:24px}
+.calendar-collapse-btn {
+  display:flex;align-items:center;gap:8px;
+  cursor:pointer;padding:8px 0;
+  font-size:.95rem;color:var(--text2);
+  user-select:none;
+}
+.calendar-collapse-btn .arrow{transition:transform .3s;font-size:.7rem}
+.calendar-collapse-btn.open .arrow{transform:rotate(180deg)}
+.calendar-body{display:none}
+.calendar-body.show{display:block}
+
+.cal-nav {
+  display:flex;align-items:center;justify-content:center;gap:16px;
+  margin-bottom:12px;font-size:1.1rem;font-weight:700;
+  color:var(--accent);
+}
+.cal-nav button {
+  background:none;border:none;color:var(--accent);
+  cursor:pointer;font-size:1.2rem;padding:4px 8px;
+  border-radius:6px;transition:all .2s;
+}
+.cal-nav button:hover{background:rgba(201,125,80,.1)}
+.cal-grid {
+  display:grid;grid-template-columns:repeat(7,1fr);gap:4px;
+  text-align:center;
+}
+.cal-day-header {
+  font-size:.75rem;color:var(--text2);padding:6px 0;
+  font-weight:700;
+}
+.cal-day {
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;font-size:.85rem;cursor:pointer;
+  transition:all .2s;position:relative;
+}
+.cal-day:hover{background:rgba(201,125,80,.08)}
+.cal-day.today{border:2px solid var(--accent);font-weight:700}
+.cal-day.empty{cursor:default}
+.cal-day .dot {
+  position:absolute;bottom:2px;width:6px;height:6px;border-radius:50%;
+}
+.cal-day .dot.green{background:#8fad88}
+.cal-day .dot.yellow{background:#e0b84c}
+.cal-day .dot.gray{background:#d4c5b0}
+.cal-day .dot.none{display:none}
+
+.modal-overlay {
+  position:fixed;inset:0;background:rgba(0,0,0,.45);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1000;backdrop-filter:blur(3px);
+}
+.modal {
+  background:var(--card);border-radius:18px;padding:32px;
+  max-width:440px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.15);
+}
+.modal h2{color:var(--accent);text-align:center;letter-spacing:2px;margin-bottom:6px}
+.modal p{text-align:center;color:var(--text2);font-size:.85rem;margin-bottom:16px}
+.modal .habit-inputs{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.modal .habit-input-row{display:flex;gap:8px;align-items:center}
+.modal input[type="text"] {
+  flex:1;padding:10px 14px;border:1px solid #d4c5b0;
+  border-radius:10px;font-family:inherit;font-size:.95rem;
+  background:#fdf8f0;color:var(--text);outline:none;
+}
+.modal input[type="text"]:focus{border-color:var(--accent)}
+.modal .btn-add-habit {
+  background:var(--accent2);color:#fff;border:none;
+  padding:8px 16px;border-radius:10px;cursor:pointer;
+  font-family:inherit;font-size:.85rem;transition:all .2s;
+  white-space:nowrap;
+}
+.modal .btn-add-habit:hover{opacity:.85}
+.modal .btn-remove-habit {
+  background:none;border:none;color:#c97d50;cursor:pointer;
+  font-size:1.2rem;padding:2px 6px;
+}
+.modal .btn-confirm {
+  width:100%;padding:12px;background:var(--accent);color:#fff;
+  border:none;border-radius:12px;font-family:inherit;
+  font-size:1rem;letter-spacing:2px;cursor:pointer;
+  transition:all .2s;
+}
+.modal .btn-confirm:hover{opacity:.9}
+
+.day-detail-list{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.day-detail-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fdf8f0;border-radius:8px}
+.day-detail-item .check-icon{font-size:1.2rem}
+.day-detail-note{margin-top:12px;padding:10px 14px;background:#fffef7;border-radius:8px;border:1px solid #e8dcc8;font-size:.9rem;color:var(--text2)}
+
+.page-footer {
+  text-align:center;padding:20px;font-size:.75rem;
+  color:var(--text2);opacity:.6;
+  position:relative;z-index:1;
+}
+.mascot-corner {
+  position:fixed;bottom:20px;right:20px;z-index:5;
+  width:70px;height:70px;
+  background:var(--mascot) center/contain no-repeat;
+  opacity:.7;pointer-events:none;
+}
+
+
+/* ============ Mobile Responsive ============ */
+@media(max-width:800px) {
+  .main-container{grid-template-columns:1fr}
+  .hero{min-height:220px;border-radius:0 0 24px 24px}
+  .hero-inner{padding:32px 16px 24px}
+  .hero-title{font-size:clamp(1.3rem,6vw,1.8rem)}
+  .hero-quote{font-size:.9rem;padding:5px 14px}
+  .hero-date{font-size:.85rem;letter-spacing:2px}
+  .weather-card{font-size:.8rem;padding:6px 12px}
+  .weather-card .temp{font-size:1.2rem}
+  .weather-card .wicon{font-size:1.3rem}
+  .card{padding:18px}
+  .habit-inner{padding:18px}
+  .habit-core::before,.habit-core::after{width:40px;opacity:.2}
+  .habit-item{padding:14px 16px;border-radius:12px}
+  .habit-check{width:30px;height:30px;font-size:16px}
+  .habit-name{font-size:1.05rem}
+  .progress-count{font-size:1.6rem}
+  .journal-card textarea{height:120px;font-size:1rem;line-height:30px}
+  .btn-play{width:44px;height:44px;font-size:1.3rem}
+  .music-mode-btn{font-size:.85rem;padding:9px}
+  .reminder-row input[type="time"]{font-size:1rem;padding:8px 12px}
+  .cal-day{font-size:.8rem}
+  .cal-day .dot{width:5px;height:5px;bottom:1px}
+  .cal-nav{font-size:1rem}
+  .modal{padding:24px;max-width:92vw}
+  .modal h2{font-size:1.1rem}
+  .modal input[type="text"]{padding:12px 14px;font-size:1rem}
+  .mascot-corner{width:50px;height:50px;bottom:12px;right:12px}
+}
+@media(max-width:400px) {
+  .hero{min-height:180px}
+  .hero-inner{padding:24px 12px 18px}
+  .habit-core::before,.habit-core::after{width:30px;opacity:.15}
+  .cal-day{font-size:.7rem}
+  .cal-day-header{font-size:.65rem}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-date" id="heroDate"></div>
+    <h1 class="hero-title">日有所进</h1>
+    <div class="hero-quote" id="heroQuote"></div>
+    <div class="weather-card" id="weatherCard">
+      <span class="wicon">☁️</span>
+      <span class="temp" id="weatherTemp">--°</span>
+      <span id="weatherDesc">加载中…</span>
+    </div>
+  </div>
+</header>
+
+<div class="main-container">
+  <div class="habit-core">
+    <div class="habit-inner">
+      <div class="card-header">
+        <span class="icon">✅</span><h3>今日打卡</h3>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-count">
+          <span id="doneCount">0</span>/<span id="totalCount">0</span>
+        </div>
+        <div class="progress-bar-outer">
+          <div class="progress-bar-inner" id="progressBar" style="width:0%"></div>
+        </div>
+      </div>
+      <ul class="habit-list" id="habitList"></ul>
+      <div class="habit-locked-hint" id="lockedHint" style="display:none">
+        🔒 习惯目标已锁定，每日坚持打卡即可
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="card journal-card">
+      <div class="card-header">
+        <span class="icon">📝</span><h3>每日随记</h3>
+      </div>
+      <textarea id="journalText" placeholder="写下今天的心情、一句古诗、一个单词…"></textarea>
+      <div class="journal-saved" id="journalSaved">✓ 已保存</div>
+    </div>
+
+    <div class="card music-card">
+      <div class="card-header">
+        <span class="icon">🎵</span><h3>背景音乐</h3>
+      </div>
+      <div class="music-modes">
+        <button class="music-mode-btn active" id="modeDefault" onclick="switchMusicMode('default')">默认音乐</button>
+        <button class="music-mode-btn" id="modeCustom" onclick="switchMusicMode('custom')">自定义</button>
+      </div>
+      <div class="music-controls">
+        <button class="btn-play" id="btnPlay" onclick="togglePlay()">▶</button>
+        <input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="40" oninput="setVolume(this.value)">
+      </div>
+      <label class="custom-upload-label" id="customUploadLabel">
+        📁 选择本机音乐文件
+        <input type="file" id="customAudioInput" accept="audio/*" onchange="loadCustomAudio(event)">
+      </label>
+      <div class="music-file-name" id="musicFileName"></div>
+    </div>
+
+    <div class="card reminder-card">
+      <div class="card-header">
+        <span class="icon">⏰</span><h3>时间提醒</h3>
+      </div>
+      <div class="reminder-row">
+        <input type="time" id="reminderTime" value="21:00" onchange="saveReminderTime()">
+        <span style="font-size:.85rem;color:var(--text2)">每天提醒</span>
+      </div>
+      <div class="reminder-status" id="reminderStatus">提醒未设置</div>
+    </div>
+  </div>
+</div>
+
+<div class="main-container" style="padding-top:0">
+  <div class="card" style="grid-column:1/-1">
+    <div class="calendar-collapse-btn" id="calCollapseBtn" onclick="toggleCalendar()">
+      <span class="icon">📅</span><span>习惯记录日历</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="calendar-body" id="calendarBody">
+      <div class="cal-nav">
+        <button onclick="changeMonth(-1)">◀</button>
+        <span id="calMonthLabel"></span>
+        <button onclick="changeMonth(1)">▶</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+  </div>
+</div>
+
+<footer class="page-footer">日复一日，功不唐捐</footer>
+<div class="mascot-corner"></div>
+
+<div class="modal-overlay" id="setupModal" style="display:none">
+  <div class="modal">
+    <h2>🌱 设置你的习惯目标</h2>
+    <p>设定后不可更改，深思熟虑再确认</p>
+    <div class="habit-inputs" id="setupHabitInputs">
+      <div class="habit-input-row">
+        <input type="text" placeholder="习惯名称，如：喝水">
+        <button class="btn-remove-habit" onclick="removeSetupInput(this)" style="visibility:hidden">✕</button>
+      </div>
+    </div>
+    <button class="btn-add-habit" onclick="addSetupInput()" style="margin-bottom:16px">+ 添加更多</button>
+    <button class="btn-confirm" onclick="confirmSetup()">确 认 锁 定</button>
+  </div>
+</div>
+
+<div class="modal-overlay day-detail-modal" id="dayDetailModal" style="display:none" onclick="closeDayDetail(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2 id="dayDetailTitle"></h2>
+    <div class="day-detail-list" id="dayDetailList"></div>
+    <div class="day-detail-note" id="dayDetailNote"></div>
+    <button class="btn-confirm" style="margin-top:12px" onclick="closeDayDetail()">关闭</button>
+  </div>
+</div>
+
+<audio id="bgAudio" loop preload="auto" src="music/default.mp3"></audio>
+
+<script>
+const STORAGE_KEY = 'habitTrackerData';
+const today = () => new Date().toISOString().slice(0,10);
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {
+      habits:[], habitsLocked:false, habitsSetupDate:'',
+      records:{}, notes:{}, reminderTime:'21:00', musicMode:'default'
+    };
+  } catch(e) { return {habits:[],habitsLocked:false,habitsSetupDate:'',records:{},notes:{},reminderTime:'21:00',musicMode:'default'}; }
+}
+
+function saveData(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+
+let idb;
+function openIDB() {
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open('HabitTrackerAudio',1);
+    r.onupgradeneeded=()=>{r.result.createObjectStore('audio')};
+    r.onsuccess=()=>{idb=r.result;res()};
+    r.onerror=()=>rej(r.error);
+  });
+}
+
+function saveCustomAudioToIDB(blob,name) {
+  return new Promise((res,rej)=>{
+    const tx=idb.transaction('audio','readwrite');
+    tx.objectStore('audio').put({blob,name},'custom');
+    tx.oncomplete=()=>res();
+    tx.onerror=()=>rej(tx.error);
+  });
+}
+
+function loadCustomAudioFromIDB() {
+  return new Promise((res,rej)=>{
+    const tx=idb.transaction('audio','readonly');
+    const rq=tx.objectStore('audio').get('custom');
+    rq.onsuccess=()=>res(rq.result);
+    rq.onerror=()=>rej(rq.error);
+  });
+}
+
+const quotes = [
+  '千里之行，始于足下。——《道德经》',
+  '不积跬步，无以至千里。——荀子',
+  '业精于勤，荒于嬉。——韩愈',
+  '锲而不舍，金石可镂。——荀子',
+  '宝剑锋从磨砺出，梅花香自苦寒来。',
+  '长风破浪会有时，直挂云帆济沧海。——李白',
+  '天行健，君子以自强不息。——《周易》',
+  '博观而约取，厚积而薄发。——苏轼',
+  '路漫漫其修远兮，吾将上下而求索。——屈原',
+  '有志者，事竟成。——《后汉书》',
+  '莫等闲，白了少年头，空悲切。——岳飞',
+  '纸上得来终觉浅，绝知此事要躬行。——陆游',
+  '山重水复疑无路，柳暗花明又一村。——陆游',
+  '会当凌绝顶，一览众山小。——杜甫',
+  '千磨万击还坚劲，任尔东西南北风。——郑燮',
+  '盛年不重来，一日难再晨。——陶渊明',
+  '少壮不努力，老大徒伤悲。——《长歌行》',
+  '苟日新，日日新，又日新。——《礼记》',
+  '为者常成，行者常至。——《晏子春秋》',
+  '日日行，不怕千万里；常常做，不怕千万事。',
+];
+
+function getTodayQuote() {
+  const d=today();
+  let hash=0;
+  for(let i=0;i<d.length;i++) hash=((hash<<5)-hash)+d.charCodeAt(i);
+  return quotes[Math.abs(hash)%quotes.length];
+}
+
+async function fetchWeather() {
+  const tempEl=document.getElementById('weatherTemp');
+  const descEl=document.getElementById('weatherDesc');
+  const wiconEl=document.querySelector('.weather-card .wicon');
+  if(!('geolocation' in navigator)){descEl.textContent='无法获取位置';return}
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    try {
+      const {latitude:lat,longitude:lon}=pos.coords;
+      const r=await fetch('https://wttr.in/'+lat+','+lon+'?format=j1');
+      const j=await r.json();
+      const cur=j.current_condition[0];
+      tempEl.textContent=cur.temp_C+'°';
+      descEl.textContent=(j.nearest_area[0]?.areaName?.[0]?.value||'')+' '+cur.weatherDesc[0].value;
+      const code=cur.weatherCode;
+      if(code===113)wiconEl.textContent='☀️';
+      else if(code===116)wiconEl.textContent='⛅';
+      else if(code<=122)wiconEl.textContent='☁️';
+      else if(code<=143)wiconEl.textContent='🌫';
+      else if(code<=182)wiconEl.textContent='🌧';
+      else if(code===200)wiconEl.textContent='⛈';
+      else if(code<=248)wiconEl.textContent='🌫';
+      else if(code<=302)wiconEl.textContent='🌦';
+      else if(code<=362)wiconEl.textContent='🌧';
+      else if(code<=395)wiconEl.textContent='❄️';
+      else wiconEl.textContent='🌤';
+    }catch(e){descEl.textContent='天气加载失败'}
+  },()=>{descEl.textContent='请授权位置以获取天气'});
+}
+
+let appData=loadData();
+let calYear,calMonth;
+let customAudioURL=null;
+
+async function init() {
+  await openIDB();
+  document.getElementById('heroDate').textContent=new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+  document.getElementById('heroQuote').textContent=getTodayQuote();
+  document.getElementById('reminderTime').value=appData.reminderTime;
+
+  if(!appData.habitsLocked) {
+    showSetupModal();
+  } else {
+    document.getElementById('lockedHint').style.display='block';
+  }
+  renderHabits();
+  renderJournal();
+  initMusic();
+  fetchWeather();
+  initCalendar();
+  startReminder();
+}
+
+function showSetupModal() {
+  document.getElementById('setupModal').style.display='flex';
+  const container=document.getElementById('setupHabitInputs');
+  container.innerHTML='';
+  for(let i=0;i<3;i++) addSetupInput();
+}
+
+function addSetupInput() {
+  const container=document.getElementById('setupHabitInputs');
+  const row=document.createElement('div');
+  row.className='habit-input-row';
+  row.innerHTML='<input type="text" placeholder="习惯名称"><button class="btn-remove-habit" onclick="removeSetupInput(this)">✕</button>';
+  const btn=row.querySelector('button');
+  if(container.children.length<2) btn.style.visibility='hidden';
+  container.appendChild(row);
+  updateRemoveButtons();
+}
+
+function removeSetupInput(btn) {
+  const container=document.getElementById('setupHabitInputs');
+  if(container.children.length<=1) return;
+  btn.parentElement.remove();
+  updateRemoveButtons();
+}
+
+function updateRemoveButtons() {
+  const container=document.getElementById('setupHabitInputs');
+  const rows=container.children;
+  for(let r of rows) {
+    r.querySelector('button').style.visibility=rows.length<=1?'hidden':'visible';
+  }
+}
+
+function confirmSetup() {
+  const inputs=document.querySelectorAll('#setupHabitInputs input');
+  const habits=[];
+  for(let inp of inputs) {
+    const v=inp.value.trim();
+    if(v) habits.push(v);
+  }
+  if(habits.length===0){alert('请至少设置一个习惯');return}
+  appData.habits=habits;
+  appData.habitsLocked=true;
+  appData.habitsSetupDate=today();
+  saveData(appData);
+  document.getElementById('setupModal').style.display='none';
+  document.getElementById('lockedHint').style.display='block';
+  renderHabits();
+  initCalendar();
+}
+
+function renderHabits() {
+  const list=document.getElementById('habitList');
+  list.innerHTML='';
+  if(appData.habits.length===0){
+    list.innerHTML='<li style="text-align:center;color:var(--text2);padding:20px">暂无习惯，请先设置</li>';
+    updateProgress();return;
+  }
+  const dayRecords=appData.records[today()]||{};
+  for(let h of appData.habits) {
+    const done=!!dayRecords[h];
+    const li=document.createElement('li');
+    li.className='habit-item'+(done?' done':'');
+    li.innerHTML='<div class="habit-check">✓</div><span class="habit-name">'+escHtml(h)+'</span>';
+    li.onclick=()=>toggleHabit(h);
+    list.appendChild(li);
+  }
+  updateProgress();
+}
+
+function toggleHabit(name) {
+  const d=today();
+  if(!appData.records[d]) appData.records[d]={};
+  appData.records[d][name]=!appData.records[d][name];
+  saveData(appData);
+  renderHabits();
+}
+
+function updateProgress() {
+  const total=appData.habits.length;
+  if(total===0){document.getElementById('doneCount').textContent='0';document.getElementById('totalCount').textContent='0';document.getElementById('progressBar').style.width='0%';return}
+  const dayRecords=appData.records[today()]||{};
+  let done=0;
+  for(let h of appData.habits){if(dayRecords[h]) done++;}
+  document.getElementById('doneCount').textContent=done;
+  document.getElementById('totalCount').textContent=total;
+  document.getElementById('progressBar').style.width=(done/total*100)+'%';
+}
+
+function renderJournal() {
+  document.getElementById('journalText').value=appData.notes[today()]||'';
+}
+
+document.getElementById('journalText').addEventListener('blur',function(){
+  appData.notes[today()]=this.value;
+  saveData(appData);
+  const s=document.getElementById('journalSaved');
+  s.classList.add('show');
+  setTimeout(()=>s.classList.remove('show'),1500);
+});
+
+const audio=document.getElementById('bgAudio');
+audio.volume=0.4;
+
+function initMusic() {
+  document.getElementById('modeDefault').classList.toggle('active',appData.musicMode==='default');
+  document.getElementById('modeCustom').classList.toggle('active',appData.musicMode==='custom');
+  document.getElementById('customUploadLabel').classList.toggle('show',appData.musicMode==='custom');
+  if(appData.musicMode==='default') {
+    audio.src='music/default.mp3';
+    document.getElementById('musicFileName').textContent='';
+    tryAutoPlay();
+  } else {
+    loadCustomAudioFromIDB().then(data=>{
+      if(data&&data.blob) {
+        if(customAudioURL) URL.revokeObjectURL(customAudioURL);
+        customAudioURL=URL.createObjectURL(data.blob);
+        audio.src=customAudioURL;
+        document.getElementById('musicFileName').textContent=data.name||'自定义音乐';
+        tryAutoPlay();
+      }
+    }).catch(()=>{});
+  }
+}
+
+function tryAutoPlay() {
+  const p = audio.play();
+  if(p!==undefined) {
+    p.then(()=>{document.getElementById('btnPlay').textContent='⏸'})
+     .catch(()=>{document.getElementById('btnPlay').textContent='▶'});
+  }
+}
+
+function switchMusicMode(mode) {
+  appData.musicMode=mode;
+  saveData(appData);
+  initMusic();
+}
+
+function togglePlay() {
+  if(audio.paused){audio.play();document.getElementById('btnPlay').textContent='⏸'}
+  else{audio.pause();document.getElementById('btnPlay').textContent='▶'}
+}
+
+function setVolume(v) { audio.volume=v/100; }
+
+function loadCustomAudio(event) {
+  const file=event.target.files[0];
+  if(!file) return;
+  saveCustomAudioToIDB(file,file.name).then(()=>{
+    if(customAudioURL) URL.revokeObjectURL(customAudioURL);
+    customAudioURL=URL.createObjectURL(file);
+    audio.src=customAudioURL;
+    document.getElementById('musicFileName').textContent=file.name;
+    tryAutoPlay();
+  });
+}
+
+function saveReminderTime() {
+  appData.reminderTime=document.getElementById('reminderTime').value;
+  saveData(appData);
+  updateReminderStatus();
+}
+
+function updateReminderStatus() {
+  const st=document.getElementById('reminderStatus');
+  if(Notification.permission==='granted') st.textContent='✓ 将在 '+appData.reminderTime+' 提醒';
+  else if(Notification.permission==='denied') st.textContent='⚠ 通知权限已拒绝';
+  else st.textContent='点击页面以授权通知';
+}
+
+function startReminder() {
+  updateReminderStatus();
+  if(Notification.permission==='default') {
+    document.addEventListener('click',function ask(){
+      Notification.requestPermission().then(updateReminderStatus);
+    },{once:true});
+  }
+  let lastChecked='';
+  setInterval(()=>{
+    const now=new Date();
+    const hh=String(now.getHours()).padStart(2,'0');
+    const mm=String(now.getMinutes()).padStart(2,'0');
+    const currentTime=hh+':'+mm;
+    if(currentTime===appData.reminderTime && currentTime!==lastChecked) {
+      lastChecked=currentTime;
+      if(Notification.permission==='granted') {
+        const dayRecords=appData.records[today()]||{};
+        let undone=appData.habits.filter(h=>!dayRecords[h]);
+        const body=undone.length>0
+          ?'还有 '+undone.length+' 项未完成：'+undone.join('、')
+          :'今日习惯已全部完成！🎉';
+        new Notification('⏰ 习惯打卡提醒',{body,icon:'img/1ddb6e50860d44129ab497d1c4d2438b.png'});
+      }
+    }
+    if(currentTime!==appData.reminderTime) lastChecked='';
+  },60000);
+}
+
+function initCalendar() {
+  const d=new Date();
+  calYear=d.getFullYear();
+  calMonth=d.getMonth();
+  renderCalendar();
+}
+
+function toggleCalendar() {
+  const body=document.getElementById('calendarBody');
+  const btn=document.getElementById('calCollapseBtn');
+  body.classList.toggle('show');
+  btn.classList.toggle('open');
+  if(body.classList.contains('show')) renderCalendar();
+}
+
+function changeMonth(delta) {
+  calMonth+=delta;
+  if(calMonth>11){calMonth=0;calYear++}
+  if(calMonth<0){calMonth=11;calYear--}
+  renderCalendar();
+}
+
+function getCompletionRate(dateStr) {
+  if(appData.habits.length===0) return -1;
+  const records=appData.records[dateStr]||{};
+  let done=0;
+  for(let h of appData.habits){if(records[h]) done++;}
+  return done/appData.habits.length;
+}
+
+function renderCalendar() {
+  document.getElementById('calMonthLabel').textContent=calYear+'年'+(calMonth+1)+'月';
+  const grid=document.getElementById('calGrid');
+  grid.innerHTML='';
+  const headers=['日','一','二','三','四','五','六'];
+  for(let h of headers) {
+    const d=document.createElement('div');
+    d.className='cal-day-header';d.textContent=h;
+    grid.appendChild(d);
+  }
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const todayDate=today();
+  for(let i=0;i<firstDay;i++) {
+    const d=document.createElement('div');
+    d.className='cal-day empty';grid.appendChild(d);
+  }
+  for(let day=1;day<=daysInMonth;day++) {
+    const dateStr=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+    const div=document.createElement('div');
+    div.className='cal-day';
+    if(dateStr===todayDate) div.classList.add('today');
+    div.textContent=day;
+    const rate=getCompletionRate(dateStr);
+    if(rate>=0) {
+      const dot=document.createElement('span');
+      dot.className='dot';
+      if(rate>=0.8) dot.classList.add('green');
+      else if(rate>=0.4) dot.classList.add('yellow');
+      else dot.classList.add('gray');
+      div.appendChild(dot);
+    }
+    div.onclick=()=>showDayDetail(dateStr);
+    grid.appendChild(div);
+  }
+}
+
+function showDayDetail(dateStr) {
+  document.getElementById('dayDetailTitle').textContent=dateStr+' 打卡记录';
+  const list=document.getElementById('dayDetailList');
+  list.innerHTML='';
+  const records=appData.records[dateStr]||{};
+  for(let h of appData.habits) {
+    const done=!!records[h];
+    const item=document.createElement('div');
+    item.className='day-detail-item';
+    item.innerHTML='<span class="check-icon">'+(done?'✅':'⬜')+'</span><span>'+escHtml(h)+'</span>';
+    list.appendChild(item);
+  }
+  const note=appData.notes[dateStr]||'';
+  document.getElementById('dayDetailNote').textContent=note?'📝 '+note:'暂无随记';
+  document.getElementById('dayDetailModal').style.display='flex';
+}
+
+function closeDayDetail(e) {
+  if(e&&e.target!==document.getElementById('dayDetailModal')) return;
+  document.getElementById('dayDetailModal').style.display='none';
+}
+
+function escHtml(s) {
+  const d=document.createElement('div');
+  d.textContent=s;
+  return d.innerHTML;
+}
+
+init();
+</script>
+</body>
+</html>
